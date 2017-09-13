@@ -3,6 +3,7 @@ class EnemyBullet{
 		this.x = x;
 		this.y = y;
 		this.velY = 5;
+		this.velX = 0;
 		this.damage = 5;
 		this.sprite = 'assets/enemy-bullet.png'
 	    this.image = new Image()
@@ -11,6 +12,7 @@ class EnemyBullet{
 
 	render(ctx){
 		this.y += this.velY;
+		if(this.velX) this.x += this.velX;
 		ctx.drawImage(this.image, this.x, this.y);
 	}
 }

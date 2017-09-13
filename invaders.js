@@ -1,5 +1,6 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d')
+document.getElementById('bgMusic').play();
 canvas.width = 800;
 canvas.height = 600;
 
@@ -8,7 +9,7 @@ let bullets = [];
 let enemyBullets = [];
 let enemies = [];
 let powerups = [];
-let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift']
+let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift', 'hack://override', 'energy barrier']
 let title = true;
 let shotsFired = 0;
 
@@ -62,6 +63,16 @@ function draw(){
     ctx.clearRect(0, 0, 800, 600);
     ctx.drawImage(bg, 0, 0, 800, 600);
 
+    for(let p of powerups){
+        p.render(ctx);
+        if(player.x + player.width > p.x && player.x < p.x + 20 && player.y + player.height > p.y && player.y < p.y + 20){
+            player.ability = p.type;
+            player.abilityCool = 200;
+            powerups.splice(powerups.indexOf(p), 1)
+            p = null;
+            delete p;
+        }
+    }
     //The order of the for loops matter. 
     //If you want to render the explosions ON TOP of the bullets, put the explosion loop AFTER the bullet loop.
     for(let e of explosions){
@@ -110,18 +121,17 @@ function draw(){
             delete e;
         }
     }
-    for(let p of powerups){
-        p.render(ctx);
-        if(player.x + player.width > p.x && player.x < p.x + 20 && player.y + player.height > p.y && player.y < p.y + 20){
-            player.ability = p.type;
-            player.abilityCool = 200;
-            powerups.splice(powerups.indexOf(p), 1)
-            p = null;
-            delete p;
-        }
-    }
     for(let eb of enemyBullets){
         eb.render(ctx);
+        if(player.ability === 'energy barrier' && eb.x > player.x - 5 && eb.x < player.x + player.width + 5 && eb.y > player.y - 20 && eb.y < player.y + 10){
+            enemyBullets.splice(enemyBullets.indexOf(eb), 1)
+            shoot();
+            shoot();
+            shoot();
+            eb = null;
+            delete eb;
+            break;
+        }
         if(eb.x > player.x && eb.x < player.x + player.width && eb.y > player.y && eb.y < player.y + player.height){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
             player.hp -= eb.damage;
@@ -135,7 +145,7 @@ function draw(){
             eb = null;
             delete eb;
         }
-        if(eb && eb.y > canvas.height + eb.image.height){
+        if(eb && (eb.y > canvas.height + eb.image.height || eb.y < 0)){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
             eb = null;
             delete eb;
@@ -148,6 +158,10 @@ function draw(){
     ctx.fillText(`Score: ${player.score}`, 10, 30);
     ctx.fillText(`Shots Fired: ${shotsFired}`, 15, 50);
     ctx.fillText(`High Score: ${localStorage['highScore']}`, 20, 70);
+    if(player.ability === 'energy barrier'){
+        ctx.fillStyle = '#56ff59';
+        ctx.fillRect(player.x - 5, player.y - 15, player.width + 10, 5);
+    }
     if(player.abilityCool > 90){
         let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         for(let i = 0; i < 1; i += 0.1){
@@ -278,7 +292,7 @@ function gameLoop(){
                 player.shootDelay = 0;
                 break;
             case 'hyper light drifter':
-                player.rof = 6;
+                player.rof = 5;
                 player.damage = 3;
                 player.speed = 10;
                 break;
@@ -308,6 +322,30 @@ function gameLoop(){
                 for(let e of enemies){
                     e.speed = 0;
                 }
+                break;
+            case 'hack://override':
+                for(let b of enemyBullets){
+                    b.velX = 5;
+                    b.velY = 0;
+                    for(let e of enemies){
+                        if(b.x > e.x && b.x < e.x + e.width && b.y < e.y + e.height && b.y > e.y){ //Check if the bullet is inside the width range of an enemy
+                            enemyBullets.splice(enemyBullets.indexOf(b), 1)
+                            b = null;
+                            delete b;
+                            e.hp -= player.damage;
+                            if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
+                                enemies.splice(enemies.indexOf(e), 1)
+                                explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
+                                e = null;
+                                delete e;
+                                player.score += 5;
+                            }
+                            break;
+                        }
+                        e.rof = 40;
+                    }
+                }
+                break;
         }
     }
     else player.ability = '';
@@ -316,9 +354,13 @@ function gameLoop(){
         player.rof = 3;
         player.damage = 1;
     }
-    if(player.ability !== 'risk of rain'){
+    if(player.ability !== 'risk of rain' && player.ability !== 'hack://override'){
         for(let e of enemies){
             e.rof = 100;
+        }
+        for(let b of enemyBullets){
+            b.velX = 0;
+            b.velY = 5;
         }
     }
     if(player.ability !== 'adagio redshift'){
