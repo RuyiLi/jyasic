@@ -18,10 +18,12 @@ blue - hyper light drifter: doubles speed, decreases rate of fire, bullets kill 
 
 yellow - photon overdrive: disables all enemies from attacking and removes fire delay.
 
-purple - risk of rain: reverses all enemy bullets, making them shoot themselves.
+light purple/violet - risk of rain: reverses all enemy bullets, making them shoot themselves.
 
 light red - hack://override: makes all enemies shoot to the right instead of down.
 
-light green - energy barrier: spawns a temporary energy shield that reflects all incoming bullets.
+light green - guard skill:distortion: spawns a temporary energy shield that reflects all incoming bullets and duplicates them.
 
 red - adagio redshift: freezes all enemies, shoot two bullets, and lifesteal upon hitting enemies.
+
+purple - cyber drive: Shoots a large amount of bullets with varying speeds at multiple angles.
