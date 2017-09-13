@@ -8,7 +8,7 @@ let bullets = [];
 let enemyBullets = [];
 let enemies = [];
 let powerups = [];
-let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain']
+let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift']
 let title = true;
 let shotsFired = 0;
 
@@ -80,6 +80,7 @@ function draw(){
                 b = null;
                 delete b;
                 e.hp -= player.damage;
+                if(player.ability === 'adagio redshift' && player.hp < player.maxHp - 1) player.hp += 1;
                 if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
                     enemies.splice(enemies.indexOf(e), 1)
                     explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
@@ -103,10 +104,15 @@ function draw(){
             let eb = new EnemyBullet(e.x, e.y);
             enemyBullets.push(eb);
         }
+        if(e.y > canvas.height){
+            enemies.splice(enemies.indexOf(e), 1)
+            e = null;
+            delete e;
+        }
     }
     for(let p of powerups){
         p.render(ctx);
-        if(player.x + player.width / 2 > p.x && player.x + player.width / 2 < p.x + 20 && player.y + player.height / 2 > p.y && player.y + player.height / 2 < p.y + 20){
+        if(player.x + player.width > p.x && player.x < p.x + 20 && player.y + player.height > p.y && player.y < p.y + 20){
             player.ability = p.type;
             player.abilityCool = 200;
             powerups.splice(powerups.indexOf(p), 1)
@@ -185,7 +191,11 @@ function spawnEnemy(){
 }
 
 function spawnPowerup(){
-    if(powerups.length > 5) powerups = powerups.slice(1);
+    if(powerups.length > 5){ 
+        powerups[0] = null;
+        delete powerups[0];
+        powerups = powerups.slice(1);
+    }
     let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerList[Math.floor(Math.random() * powerList.length)]);
     powerups.push(powerup);
 }
@@ -202,6 +212,11 @@ function shoot(){
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullet.velY = -15;
         bullets.push(bullet)
+    }else if(player.ability === 'adagio redshift'){
+        let bullet = new Bullet(player.x + player.width / 2 - 10, player.y - 10);
+        let bullet2 = new Bullet(player.x + player.width / 2 + 10, player.y - 10);
+        bullets.push(bullet)
+        bullets.push(bullet2)
     }else{
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullets.push(bullet)
@@ -260,7 +275,7 @@ function gameLoop(){
                 for(let e of enemies){
                     e.shoot = 100;
                 }
-                player.rof = 0;
+                player.shootDelay = 0;
                 break;
             case 'hyper light drifter':
                 player.rof = 6;
@@ -285,18 +300,31 @@ function gameLoop(){
                             }
                             break;
                         }
+                        e.rof = 5;
                     }
+                }
+                break;
+            case 'adagio redshift':
+                for(let e of enemies){
+                    e.speed = 0;
                 }
         }
     }
     else player.ability = '';
-    
-    if(player.ability !== 'photon overdrive'){
-        player.rof = 3;
-    }
+
     if(player.ability !== 'hyper light drifter' && player.ability !== 'photon overdrive'){
         player.rof = 3;
         player.damage = 1;
+    }
+    if(player.ability !== 'risk of rain'){
+        for(let e of enemies){
+            e.rof = 100;
+        }
+    }
+    if(player.ability !== 'adagio redshift'){
+        for(let e of enemies){
+            e.speed = e.speed > 0 ? 1 : -1;
+        }
     }
 
     if(keys[32] && player.shootDelay <= 0){ //If the player presses space and the gun's cooldown has been reached, shoot.
