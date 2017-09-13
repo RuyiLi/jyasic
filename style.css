@@ -16,10 +16,49 @@ p{
 
 body{
 	width: 100%;
-	background-color: #131313;
+	animation: waver 3s infinite;
 	overflow: hidden;
 	padding: 0;
 	margin: 0;
+}
+
+@keyframes waver{
+	0%{
+		background-color: #353535;
+	}
+	20%{
+		background-color: #1c1c1c;
+	}
+	40%{
+		background-color: #474747;
+	}
+	60%{
+		background-color: #111111;	
+	}
+	80%{
+		background-color: #474747;
+	}
+	100%{
+		background-color: #1c1c1c;
+	}
+}
+
+@keyframes rotate{
+	0%{
+		transform: rotateZ(0deg);
+	}
+	25%{
+		transform: rotateZ(-3deg);
+	}
+	50%{
+		transform: rotateZ(0deg);
+	}
+	75%{
+		transform: rotateZ(3deg);
+	}
+	100%{
+		transform: rotateZ(0deg);
+	}
 }
 
 canvas{
@@ -28,6 +67,7 @@ canvas{
 	width: 800px;
 	height: 600px;
 	position: fixed;
+	animation: rotate 3s infinite;
 	left: calc(50% - 400px);
 	top: 10px;
 	margin-top: 10px;

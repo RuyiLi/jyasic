@@ -8,8 +8,9 @@ let bullets = [];
 let enemyBullets = [];
 let enemies = [];
 let powerups = [];
-let powerList = ['triple beam', 'nanobots', 'photon overdrive', 'hyper light drifter']
+let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain']
 let title = true;
+let shotsFired = 0;
 
 let bg = new Image();
 bg.src = 'assets/starfield.png'
@@ -46,6 +47,8 @@ let keys = {}
 player.image.src = player.src;
 
 window.onload = function(){
+    if(!localStorage['highScore']) localStorage['highScore'] = 0;
+    //localStorage.highScore works too, but be consistent.
     for(let i = 0; i < 25; i++){
         spawnEnemy();
     }
@@ -117,6 +120,7 @@ function draw(){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
             player.hp -= eb.damage;
             if(player.hp <= 0){
+                if(player.score > localStorage['highScore']) localStorage['highScore'] = player.score
                 player = null;
                 delete player;
                 location.reload();
@@ -135,12 +139,14 @@ function draw(){
     //GUI takes priority.
     ctx.fillStyle = 'white';
     ctx.font = '30px adventure'
-    ctx.fillText(`Score: ${player.score}`, 20, 30);
-    if(player.abilityCool > 100){
+    ctx.fillText(`Score: ${player.score}`, 10, 30);
+    ctx.fillText(`Shots Fired: ${shotsFired}`, 15, 50);
+    ctx.fillText(`High Score: ${localStorage['highScore']}`, 20, 70);
+    if(player.abilityCool > 90){
         let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-        gradient.addColorStop("0", getRandomColor());
-        gradient.addColorStop("0.5", getRandomColor());
-        gradient.addColorStop("1.0", getRandomColor());
+        for(let i = 0; i < 1; i += 0.1){
+            gradient.addColorStop('' + i, getRandomColor());
+        }
         ctx.font = '65px adventure';
         ctx.fillStyle = gradient;
         ctx.fillText(player.ability, 400 - (ctx.measureText(player.ability).width / 2), 280);
@@ -173,22 +179,25 @@ function explode(x, y){
 }
 
 function spawnEnemy(){
-    if(enemies.length > 50) return;
+    if(enemies.length > 90) return;
     let enemy = new Enemy(Math.floor(Math.random() * (canvas.width - 64)) + 32, (Math.floor(Math.random() * 4) + 1) * 50);
     enemies.push(enemy);
 }
 
 function spawnPowerup(){
-    let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 300) + 300, powerList[Math.floor(Math.random() * powerList.length)]);
+    if(powerups.length > 5) powerups = powerups.slice(1);
+    let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerList[Math.floor(Math.random() * powerList.length)]);
     powerups.push(powerup);
 }
 
 function shoot(){
-    if(player.ability === 'triple beam'){
-        for(let i = -1; i < 2; i++){
+    if(player.ability === 'penta beam'){
+        for(let i = -2; i < 3; i++){
             let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
             bullets.push(bullet)
+            shotsFired++;
         }
+        return;
     }else if(player.ability === 'hyper light drifter'){
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullet.velY = -15;
@@ -197,6 +206,7 @@ function shoot(){
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullets.push(bullet)
     }
+    shotsFired++;
 }
 
 window.addEventListener("keydown", function (e) {
@@ -218,15 +228,18 @@ KEYCODES
 
 //setInterval takes two arguments: a function and a delay.
 //It will keep running the function every `delay` seconds.
-setInterval(spawnEnemy, 1500) //1s = 1000ms, so 1.5s = 1500ms
-setInterval(spawnPowerup, 8000)
+setInterval(function(){
+    for(let i = 0; i < 8; i++){
+        spawnEnemy();
+    }
+}, 1500) //1s = 1000ms, so 1.5s = 1500ms
+setInterval(spawnPowerup, 5000) //5s = 5000ms
 //For the tutorial, put spawnEnemy in here as a lambda and eventually migrate it to a standalone function.
 
 function gameLoop(){
 
-    if(player.ability === 'hyper light drifter') player.speed = 10;
-    else if(keys[16]) player.speed = 3;
-    else player.speed = 5;
+    if(keys[16] && player.ability !== 'hyper light drifter') player.speed = 3;
+    else if(!keys[16] && player.ability !== 'hyper light drifter') player.speed = 5;
 
     //Because of this, the left key (which has a key code of 37) takes priority over the else if (right arrow key with code 39)
     if(keys[37] && player.x > 0) player.vx = -player.speed; //Negative x velocity means the player will move left 
@@ -239,13 +252,41 @@ function gameLoop(){
 
     if(player.abilityCool > 0){ 
         player.abilityCool--;
-        if(player.ability === 'nanobots' && player.hp < player.maxHp){
-            player.hp += 0.5;
-        }else if(player.ability === 'photon overdrive'){
-            for(let e of enemies){
-                e.shoot = 100;
-            }
-            player.rof = 0;
+        switch(player.ability){
+            case 'nanobots':
+                player.hp += player.hp < player.maxHp ? 0.5 : 0;
+                break;
+            case 'photon overdrive':
+                for(let e of enemies){
+                    e.shoot = 100;
+                }
+                player.rof = 0;
+                break;
+            case 'hyper light drifter':
+                player.rof = 6;
+                player.damage = 3;
+                player.speed = 10;
+                break;
+            case 'risk of rain':
+                for(let b of enemyBullets){
+                    b.velY = -5;
+                    for(let e of enemies){
+                        if(b.x > e.x && b.x < e.x + e.width && b.y < e.y + e.height && b.y > e.y){ //Check if the bullet is inside the width range of an enemy
+                            enemyBullets.splice(enemyBullets.indexOf(b), 1)
+                            b = null;
+                            delete b;
+                            e.hp -= player.damage;
+                            if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
+                                enemies.splice(enemies.indexOf(e), 1)
+                                explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
+                                e = null;
+                                delete e;
+                                player.score += 5;
+                            }
+                            break;
+                        }
+                    }
+                }
         }
     }
     else player.ability = '';
@@ -253,6 +294,11 @@ function gameLoop(){
     if(player.ability !== 'photon overdrive'){
         player.rof = 3;
     }
+    if(player.ability !== 'hyper light drifter' && player.ability !== 'photon overdrive'){
+        player.rof = 3;
+        player.damage = 1;
+    }
+
     if(keys[32] && player.shootDelay <= 0){ //If the player presses space and the gun's cooldown has been reached, shoot.
         shoot();
         player.shootDelay = player.rof; //Reset the shooting delay
