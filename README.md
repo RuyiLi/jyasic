@@ -10,6 +10,9 @@ space to shoot.
 shift to deccelerate
 
 ## powerups
+
+(note that some of these names are not original and are taken from other games or anime)
+
 light blue/green/teal - pentabeam: shoots five bullets instead of one.
 
 green - nanobots: repairs the ship over time.
@@ -26,4 +29,8 @@ light green - guard skill:distortion: spawns a temporary energy shield that refl
 
 red - adagio redshift: freezes all enemies, shoot two bullets, and lifesteal upon hitting enemies.
 
-purple - cyber drive: Shoots a large amount of bullets with varying speeds at multiple angles.
+purple - cyber drive: shoots a large amount of bullets with varying speeds at multiple angles.
+
+grey - yatsufusa: spawns hordes of resurrected enemies that run into enemies and deal damage.
+
+white - scream: shoots a large amount of bullets with varying speeds at multiple angles.
