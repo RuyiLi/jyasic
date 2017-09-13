@@ -1,14 +1,17 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d')
+document.getElementById('bgMusic').play();
 canvas.width = 800;
 canvas.height = 600;
+ctx.strokeStyle = '#56ff59';
+ctx.lineWidth = 3;
 
 let explosions = [];
 let bullets = [];
 let enemyBullets = [];
 let enemies = [];
 let powerups = [];
-let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain']
+let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift', 'hack://override', 'guard skill: distortion', 'cyber drive']
 let title = true;
 let shotsFired = 0;
 
@@ -59,9 +62,19 @@ window.onload = function(){
 }
 
 function draw(){
-    ctx.clearRect(0, 0, 800, 600);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bg, 0, 0, 800, 600);
 
+    for(let p of powerups){
+        p.render(ctx);
+        if(player.x + player.width > p.x && player.x < p.x + 20 && player.y + player.height > p.y && player.y < p.y + 20){
+            player.ability = p.type;
+            player.abilityCool = 200;
+            powerups.splice(powerups.indexOf(p), 1)
+            p = null;
+            delete p;
+        }
+    }
     //The order of the for loops matter. 
     //If you want to render the explosions ON TOP of the bullets, put the explosion loop AFTER the bullet loop.
     for(let e of explosions){
@@ -80,6 +93,7 @@ function draw(){
                 b = null;
                 delete b;
                 e.hp -= player.damage;
+                if(player.ability === 'adagio redshift' && player.hp < player.maxHp - 1) player.hp += 1;
                 if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
                     enemies.splice(enemies.indexOf(e), 1)
                     explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
@@ -103,19 +117,28 @@ function draw(){
             let eb = new EnemyBullet(e.x, e.y);
             enemyBullets.push(eb);
         }
-    }
-    for(let p of powerups){
-        p.render(ctx);
-        if(player.x + player.width / 2 > p.x && player.x + player.width / 2 < p.x + 20 && player.y + player.height / 2 > p.y && player.y + player.height / 2 < p.y + 20){
-            player.ability = p.type;
-            player.abilityCool = 200;
-            powerups.splice(powerups.indexOf(p), 1)
-            p = null;
-            delete p;
+        if(e.y > canvas.height){
+            enemies.splice(enemies.indexOf(e), 1)
+            e = null;
+            delete e;
         }
     }
     for(let eb of enemyBullets){
         eb.render(ctx);
+        if(player.ability === 'guard skill: distortion' && eb.x > player.x && eb.x < player.x + player.width && eb.y > player.y && eb.y < player.y + player.height){
+            enemyBullets.splice(enemyBullets.indexOf(eb), 1)
+            for(let i = -3; i < 4; i++){
+                let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
+                bullet.image.src = 'assets/enemy-bullet.png';
+                bullet.velY = -5;
+                bullet.velX = i / 5;
+                bullets.push(bullet)
+                shotsFired++;
+            }
+            eb = null;
+            delete eb;
+            break;
+        }
         if(eb.x > player.x && eb.x < player.x + player.width && eb.y > player.y && eb.y < player.y + player.height){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
             player.hp -= eb.damage;
@@ -129,13 +152,18 @@ function draw(){
             eb = null;
             delete eb;
         }
-        if(eb && eb.y > canvas.height + eb.image.height){
+        if(eb && (eb.y > canvas.height + eb.image.height || eb.y < 0)){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
             eb = null;
             delete eb;
         }
     }
     if(player) player.draw();
+    if(player.ability === 'guard skill: distortion'){
+        ctx.beginPath();
+        ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 21, 0, 2 * Math.PI, false);
+        ctx.stroke();
+    }
     //GUI takes priority.
     ctx.fillStyle = 'white';
     ctx.font = '30px adventure'
@@ -147,7 +175,7 @@ function draw(){
         for(let i = 0; i < 1; i += 0.1){
             gradient.addColorStop('' + i, getRandomColor());
         }
-        ctx.font = '65px adventure';
+        ctx.font = `${player.ability === 'guard skill: distortion' ? 55 : 65}px adventure`;
         ctx.fillStyle = gradient;
         ctx.fillText(player.ability, 400 - (ctx.measureText(player.ability).width / 2), 280);
     }
@@ -185,7 +213,11 @@ function spawnEnemy(){
 }
 
 function spawnPowerup(){
-    if(powerups.length > 5) powerups = powerups.slice(1);
+    if(powerups.length > 5){ 
+        powerups[0] = null;
+        delete powerups[0];
+        powerups = powerups.slice(1);
+    }
     let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerList[Math.floor(Math.random() * powerList.length)]);
     powerups.push(powerup);
 }
@@ -198,10 +230,25 @@ function shoot(){
             shotsFired++;
         }
         return;
+    }else if(player.ability === 'cyber drive'){
+        for(let i = -5; i < 6; i++){
+            let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
+            bullet.image.src = 'assets/enemy-bullet.png';
+            bullet.velY = i !== 0 ? -Math.abs(i) : -5;
+            bullet.velX = i / 3;
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
     }else if(player.ability === 'hyper light drifter'){
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullet.velY = -15;
         bullets.push(bullet)
+    }else if(player.ability === 'adagio redshift'){
+        let bullet = new Bullet(player.x + player.width / 2 - 10, player.y - 10);
+        let bullet2 = new Bullet(player.x + player.width / 2 + 10, player.y - 10);
+        bullets.push(bullet)
+        bullets.push(bullet2)
     }else{
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullets.push(bullet)
@@ -260,10 +307,10 @@ function gameLoop(){
                 for(let e of enemies){
                     e.shoot = 100;
                 }
-                player.rof = 0;
+                player.shootDelay = 0;
                 break;
             case 'hyper light drifter':
-                player.rof = 6;
+                player.rof = 5;
                 player.damage = 3;
                 player.speed = 10;
                 break;
@@ -285,18 +332,59 @@ function gameLoop(){
                             }
                             break;
                         }
+                        e.rof = 5;
                     }
                 }
+                break;
+            case 'adagio redshift':
+                for(let e of enemies){
+                    e.speed = 0;
+                }
+                break;
+            case 'hack://override':
+                for(let b of enemyBullets){
+                    b.velX = 5;
+                    b.velY = 0;
+                    for(let e of enemies){
+                        if(b.x > e.x && b.x < e.x + e.width && b.y < e.y + e.height && b.y > e.y){ //Check if the bullet is inside the width range of an enemy
+                            enemyBullets.splice(enemyBullets.indexOf(b), 1)
+                            b = null;
+                            delete b;
+                            e.hp -= player.damage;
+                            if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
+                                enemies.splice(enemies.indexOf(e), 1)
+                                explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
+                                e = null;
+                                delete e;
+                                player.score += 5;
+                            }
+                            break;
+                        }
+                        e.rof = 40;
+                    }
+                }
+                break;
         }
     }
     else player.ability = '';
-    
-    if(player.ability !== 'photon overdrive'){
-        player.rof = 3;
-    }
+
     if(player.ability !== 'hyper light drifter' && player.ability !== 'photon overdrive'){
         player.rof = 3;
         player.damage = 1;
+    }
+    if(player.ability !== 'risk of rain' && player.ability !== 'hack://override'){
+        for(let e of enemies){
+            e.rof = 100;
+        }
+        for(let b of enemyBullets){
+            b.velX = 0;
+            b.velY = 5;
+        }
+    }
+    if(player.ability !== 'adagio redshift'){
+        for(let e of enemies){
+            e.speed = e.speed > 0 ? 1 : -1;
+        }
     }
 
     if(keys[32] && player.shootDelay <= 0){ //If the player presses space and the gun's cooldown has been reached, shoot.
