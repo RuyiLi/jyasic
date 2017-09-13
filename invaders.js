@@ -3,13 +3,15 @@ const ctx = canvas.getContext('2d')
 document.getElementById('bgMusic').play();
 canvas.width = 800;
 canvas.height = 600;
+ctx.strokeStyle = '#56ff59';
+ctx.lineWidth = 3;
 
 let explosions = [];
 let bullets = [];
 let enemyBullets = [];
 let enemies = [];
 let powerups = [];
-let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift', 'hack://override', 'energy barrier']
+let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift', 'hack://override', 'guard skill: distortion', 'cyber drive']
 let title = true;
 let shotsFired = 0;
 
@@ -60,7 +62,7 @@ window.onload = function(){
 }
 
 function draw(){
-    ctx.clearRect(0, 0, 800, 600);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(bg, 0, 0, 800, 600);
 
     for(let p of powerups){
@@ -123,11 +125,16 @@ function draw(){
     }
     for(let eb of enemyBullets){
         eb.render(ctx);
-        if(player.ability === 'energy barrier' && eb.x > player.x - 5 && eb.x < player.x + player.width + 5 && eb.y > player.y - 20 && eb.y < player.y + 10){
+        if(player.ability === 'guard skill: distortion' && eb.x > player.x && eb.x < player.x + player.width && eb.y > player.y && eb.y < player.y + player.height){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
-            shoot();
-            shoot();
-            shoot();
+            for(let i = -3; i < 4; i++){
+                let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
+                bullet.image.src = 'assets/enemy-bullet.png';
+                bullet.velY = -5;
+                bullet.velX = i / 5;
+                bullets.push(bullet)
+                shotsFired++;
+            }
             eb = null;
             delete eb;
             break;
@@ -152,22 +159,23 @@ function draw(){
         }
     }
     if(player) player.draw();
+    if(player.ability === 'guard skill: distortion'){
+        ctx.beginPath();
+        ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 21, 0, 2 * Math.PI, false);
+        ctx.stroke();
+    }
     //GUI takes priority.
     ctx.fillStyle = 'white';
     ctx.font = '30px adventure'
     ctx.fillText(`Score: ${player.score}`, 10, 30);
     ctx.fillText(`Shots Fired: ${shotsFired}`, 15, 50);
     ctx.fillText(`High Score: ${localStorage['highScore']}`, 20, 70);
-    if(player.ability === 'energy barrier'){
-        ctx.fillStyle = '#56ff59';
-        ctx.fillRect(player.x - 5, player.y - 15, player.width + 10, 5);
-    }
     if(player.abilityCool > 90){
         let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         for(let i = 0; i < 1; i += 0.1){
             gradient.addColorStop('' + i, getRandomColor());
         }
-        ctx.font = '65px adventure';
+        ctx.font = `${player.ability === 'guard skill: distortion' ? 55 : 65}px adventure`;
         ctx.fillStyle = gradient;
         ctx.fillText(player.ability, 400 - (ctx.measureText(player.ability).width / 2), 280);
     }
@@ -218,6 +226,16 @@ function shoot(){
     if(player.ability === 'penta beam'){
         for(let i = -2; i < 3; i++){
             let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
+    }else if(player.ability === 'cyber drive'){
+        for(let i = -5; i < 6; i++){
+            let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
+            bullet.image.src = 'assets/enemy-bullet.png';
+            bullet.velY = i !== 0 ? -Math.abs(i) : -5;
+            bullet.velX = i / 3;
             bullets.push(bullet)
             shotsFired++;
         }
