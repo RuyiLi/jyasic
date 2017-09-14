@@ -13,7 +13,7 @@ let enemies = [];
 let powerups = [];
 let powerList = ['penta beam', 'nanobots', 'nanobots', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain',
                 'guard skill: harmonics', 'adagio redshift', 'hack://override', 'guard skill: distortion', 'guard skill: sonic rotation',
-                'cyber drive', 'scream', 'yatsufusa', 'ivories in the fire', 'guard skill: overdrive', 'disintegrate']
+                'cyber drive', 'scream', 'yatsufusa', 'ivories in the fire', 'guard skill: overdrive']
 let title = true;
 let shotsFired = 0;
 
@@ -193,7 +193,7 @@ function draw(){
         for(let i = 0; i < 1; i += 0.1){
             gradient.addColorStop('' + i, getRandomColor());
         }
-        ctx.font = `${player.ability.includes('guard skill') ? 60 : 80}px adventure`;
+        ctx.font = `${player.ability.includes('god tier') ? 55 : (player.ability.includes('guard skill') ? 60 : 80)}px adventure`;
         ctx.fillStyle = gradient;
         ctx.fillText(player.ability, canvas.width / 2 - (ctx.measureText(player.ability).width / 2), player.ability === 'scream' ? 300 : 280);
     }
@@ -245,9 +245,6 @@ function spawnPowerup(){
         powerups = powerups.slice(1);
     }
     let powerName = powerList[Math.floor(Math.random() * powerList.length)];
-    while(powerName === 'disintegrate' && player.score < 10000){
-        powerName = powerList[Math.floor(Math.random() * powerList.length)];
-    }
     let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerName);
     powerups.push(powerup);
 }
@@ -281,6 +278,14 @@ function shoot(){
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullet.velY = -15;
         bullets.push(bullet)
+    }else if(player.ability === 'god tier: lance of light'){
+        for(let i = -50; i < 51; i++){
+            let bullet = new Bullet(player.x + player.width / 2 + i * 3, player.y - 10);
+            bullet.velY = -25;
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
     }else if(player.ability === 'adagio redshift'){
         let bullet = new Bullet(player.x + player.width / 2 - 10, player.y - 10);
         let bullet2 = new Bullet(player.x + player.width / 2 + 10, player.y - 10);
@@ -372,8 +377,23 @@ setInterval(function(){
 
 function gameLoop(){
 
-    if(keys[16] && ['hyper light drifter', 'disintegrate'].includes(player.ability)) player.speed = 3;
-    else if(!keys[16] && ['hyper light drifter', 'disintegrate'].includes(player.ability)) player.speed = 5;
+    if(player.score >= 10000){
+        if(!powerList.includes('god tier: lance of light')){
+            powerList.push('god tier: lance of light');
+            player.ability = 'god tier: lance of light';
+            player.abilityCool = 200;
+        }
+    }
+    if(player.score >= 20000){
+        if(!powerList.includes('god tier: disintegrate')){
+            powerList.push('god tier: disintegrate');
+            player.ability = 'god tier: disintegrate';
+            player.abilityCool = 200;
+        }
+    }
+
+    if(keys[16] && ['hyper light drifter', 'god tier: disintegrate'].includes(player.ability)) player.speed = 3;
+    else if(!keys[16] && ['hyper light drifter', 'god tier: disintegrate'].includes(player.ability)) player.speed = 5;
 
     //Because of this, the left key (which has a key code of 37) takes priority over the else if (right arrow key with code 39)
     if(keys[37] && player.x > 0) player.vx = -player.speed; //Negative x velocity means the player will move left 
@@ -400,6 +420,10 @@ function gameLoop(){
                 player.rof = 2;
                 player.damage = 3;
                 player.speed = 8;
+                break;
+            case 'god tier: lance of light':
+                player.rof = 0;
+                player.damage = 3;
                 break;
             case 'risk of rain':
                 for(let b of enemyBullets){
@@ -459,7 +483,7 @@ function gameLoop(){
                 break;
             case 'guard skill: sonic rotation':
                 player.rof = 1;
-                player.damage = 2;
+                player.damage = 1;
                 break;
             case 'guard skill: distortion':
                 player.hp += player.hp < player.maxHp ? 0.1 : 0;
@@ -468,9 +492,8 @@ function gameLoop(){
             case 'guard skill: overdrive':
                 player.damage = 0.2;
                 break;
-            case 'disintegrate':
-                player.shootDelay = 3;
-                player.speed = 0;
+            case 'god tier: disintegrate':
+                player.speed = 4;
                 for(let e of enemies){
                     e.hp -= 0.1;
                     if(e.hp <= 0){
@@ -499,7 +522,7 @@ function gameLoop(){
     }
     else player.ability = '';
 
-    if(!['hyper light drifter', 'disintegrate', 'scream', 'photon overdrive', 'cyber drive', 'guard skill: distortion', 'guard skill: overdrive', 'ivories in the fire', 'guard skill: sonic rotation'].includes(player.ability)){
+    if(!['hyper light drifter', 'god tier: lance of light', 'scream', 'photon overdrive', 'cyber drive', 'guard skill: distortion', 'guard skill: overdrive', 'ivories in the fire', 'guard skill: sonic rotation'].includes(player.ability)){
         player.rof = 3;
         player.damage = 1;
     }
