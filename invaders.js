@@ -227,15 +227,15 @@ function explode(x, y){
 function spawnEnemy(boss = false){
     if(enemies.length > 90) return;
     let enemy = new Enemy(Math.floor(Math.random() * (canvas.width - 64)) + 32, (Math.floor(Math.random() * 4) + 1) * 50);
-    if(boss){
-        enemy.rof = 50;
-        enemy.boss = true;
-        enemy.maxHp = 30;
-        enemies.push(enemy);
-    }else{
+    //if(boss){
+    //    enemy.rof = 50;
+    //    enemy.boss = true;
+    //    enemy.maxHp = 30;
+    //    enemies.push(enemy);
+    //}else{
         enemy.rof = Math.floor(Math.random() * 100) + 100;
         enemies.push(enemy);
-    }
+    //}
 }
 
 function spawnPowerup(){
