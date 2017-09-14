@@ -21,6 +21,7 @@ class Powerup{
 		else if(this.type === 'guard skill: harmonics') ctx.fillStyle = '#397040';
 		else if(this.type === 'guard skill: sonic rotation') ctx.fillStyle = '#173f42';
 		else if(this.type === 'guard skill: overdrive') ctx.fillStyle = '#5a6014';
+		else if(this.type === 'disintegrate') ctx.fillStyle = '#666666';
 		ctx.fillRect(this.x, this.y, 20, 20);
 	}
 }

@@ -13,7 +13,7 @@ let enemies = [];
 let powerups = [];
 let powerList = ['penta beam', 'nanobots', 'nanobots', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain',
                 'guard skill: harmonics', 'adagio redshift', 'hack://override', 'guard skill: distortion', 'guard skill: sonic rotation',
-                'cyber drive', 'scream', 'yatsufusa', 'ivories in the fire', 'guard skill: overdrive']
+                'cyber drive', 'scream', 'yatsufusa', 'ivories in the fire', 'guard skill: overdrive', 'disintegrate']
 let title = true;
 let shotsFired = 0;
 
@@ -224,11 +224,18 @@ function explode(x, y){
     explosions.push(explosion);
 }
 
-function spawnEnemy(){
+function spawnEnemy(boss = false){
     if(enemies.length > 90) return;
     let enemy = new Enemy(Math.floor(Math.random() * (canvas.width - 64)) + 32, (Math.floor(Math.random() * 4) + 1) * 50);
-    enemy.rof = Math.floor(Math.random() * 100) + 100;
-    enemies.push(enemy);
+    if(boss){
+        enemy.rof = 50;
+        enemy.boss = true;
+        enemy.maxHp = 30;
+        enemies.push(enemy);
+    }else{
+        enemy.rof = Math.floor(Math.random() * 100) + 100;
+        enemies.push(enemy);
+    }
 }
 
 function spawnPowerup(){
@@ -237,7 +244,11 @@ function spawnPowerup(){
         delete powerups[0];
         powerups = powerups.slice(1);
     }
-    let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerList[Math.floor(Math.random() * powerList.length)]);
+    let powerName = powerList[Math.floor(Math.random() * powerList.length)];
+    while(powerName === 'disintegrate' && player.score < 10000){
+        powerName = powerList[Math.floor(Math.random() * powerList.length)];
+    }
+    let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerName);
     powerups.push(powerup);
 }
 
@@ -354,12 +365,15 @@ setInterval(function(){
     }
 }, 1500) //1s = 1000ms, so 1.5s = 1500ms
 setInterval(spawnPowerup, 4000) //4s = 4000ms
+setInterval(function(){
+    spawnEnemy(true);
+}, 3000)
 //For the tutorial, put spawnEnemy in here as a lambda and eventually migrate it to a standalone function.
 
 function gameLoop(){
 
-    if(keys[16] && player.ability !== 'hyper light drifter') player.speed = 3;
-    else if(!keys[16] && player.ability !== 'hyper light drifter') player.speed = 5;
+    if(keys[16] && ['hyper light drifter', 'disintegrate'].includes(player.ability)) player.speed = 3;
+    else if(!keys[16] && ['hyper light drifter', 'disintegrate'].includes(player.ability)) player.speed = 5;
 
     //Because of this, the left key (which has a key code of 37) takes priority over the else if (right arrow key with code 39)
     if(keys[37] && player.x > 0) player.vx = -player.speed; //Negative x velocity means the player will move left 
@@ -401,7 +415,7 @@ function gameLoop(){
                                 explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
                                 e = null;
                                 delete e;
-                                player.score += 5;
+                                player.score += 10;
                             }
                             break;
                         }
@@ -424,12 +438,12 @@ function gameLoop(){
                             b = null;
                             delete b;
                             e.hp -= player.damage;
-                            if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
+                            if(e.hp <= 0){
                                 enemies.splice(enemies.indexOf(e), 1)
                                 explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
                                 e = null;
                                 delete e;
-                                player.score += 5;
+                                player.score += 10;
                             }
                             break;
                         }
@@ -454,6 +468,20 @@ function gameLoop(){
             case 'guard skill: overdrive':
                 player.damage = 0.2;
                 break;
+            case 'disintegrate':
+                player.shootDelay = 3;
+                player.speed = 0;
+                for(let e of enemies){
+                    e.hp -= 0.1;
+                    if(e.hp <= 0){
+                        enemies.splice(enemies.indexOf(e), 1)
+                        explode(e.x - 48, e.y - 48);
+                        e = null;
+                        delete e;
+                        player.score += 10;
+                    }
+                }
+                break;
             case 'ivories in the fire':
                 for(let b of bullets){
                     if(ping){
@@ -471,7 +499,7 @@ function gameLoop(){
     }
     else player.ability = '';
 
-    if(!['hyper light drifter', 'scream', 'photon overdrive', 'cyber drive', 'guard skill: distortion', 'guard skill: overdrive', 'ivories in the fire', 'guard skill: sonic rotation'].includes(player.ability)){
+    if(!['hyper light drifter', 'disintegrate', 'scream', 'photon overdrive', 'cyber drive', 'guard skill: distortion', 'guard skill: overdrive', 'ivories in the fire', 'guard skill: sonic rotation'].includes(player.ability)){
         player.rof = 3;
         player.damage = 1;
     }
