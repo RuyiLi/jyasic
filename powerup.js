@@ -18,6 +18,9 @@ class Powerup{
 		else if(this.type === 'scream') ctx.fillStyle = '#FFFFFF';
 		else if(this.type === 'yatsufusa') ctx.fillStyle = '#282828';
 		else if(this.type === 'ivories in the fire') ctx.fillStyle = '#ffa20c';
+		else if(this.type === 'guard skill: harmonics') ctx.fillStyle = '#397040';
+		else if(this.type === 'guard skill: sonic rotation') ctx.fillStyle = '#173f42';
+		else if(this.type === 'guard skill: overdrive') ctx.fillStyle = '#5a6014';
 		ctx.fillRect(this.x, this.y, 20, 20);
 	}
 }

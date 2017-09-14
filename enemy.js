@@ -10,8 +10,8 @@ class Enemy{
 	    this.image = new Image()
 	    this.width = this.height = 32;
 	    this.image.src = this.sheet;
-	    this.rof = 100;
-	    this.shoot = 0;
+	    this.rof = 120;
+	    this.shoot = 1;
 	}
 
 	render(ctx){
