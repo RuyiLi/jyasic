@@ -68,11 +68,13 @@ body{
 canvas{
     font-family: 'adventure';
 	border: 1px solid rgba(35, 35, 35, 0.5);
-	width: 800px;
+	width: 1000px;
 	height: 600px;
 	position: fixed;
+	/*
 	animation: rotate 3s infinite;
-	left: calc(50% - 400px);
+	*/
+	left: calc(50% - 500px);
 	top: 10px;
 	margin-top: 10px;
 }

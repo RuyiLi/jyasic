@@ -17,7 +17,7 @@ class Enemy{
 	render(ctx){
 		this.i = this.i === 3 ? 0 : this.i + 1;
 		this.x += this.speed;
-		if((this.x >= 736 && this.speed > 0) || (this.x <= 32 && this.speed < 0)){
+		if((this.x >= 936 && this.speed > 0) || (this.x <= 32 && this.speed < 0)){
 		 	this.speed = -this.speed;
 		 	this.y += 40;
 		}

@@ -12,7 +12,7 @@ class EnemyBullet{
 
 	render(ctx){
 		this.y += this.velY;
-		if(this.velX) this.x += this.velX;
+		this.x += this.velX;
 		ctx.drawImage(this.image, this.x, this.y);
 	}
 }

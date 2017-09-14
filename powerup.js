@@ -15,6 +15,9 @@ class Powerup{
 		else if(this.type === 'hack://override') ctx.fillStyle = '#ff4949';
 		else if(this.type === 'guard skill: distortion') ctx.fillStyle = '#56ff59';
 		else if(this.type === 'cyber drive') ctx.fillStyle = '#7314cc';
+		else if(this.type === 'scream') ctx.fillStyle = '#FFFFFF';
+		else if(this.type === 'yatsufusa') ctx.fillStyle = '#282828';
+		else if(this.type === 'ivories in the fire') ctx.fillStyle = '#ffa20c';
 		ctx.fillRect(this.x, this.y, 20, 20);
 	}
 }

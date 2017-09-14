@@ -1,17 +1,19 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d')
 document.getElementById('bgMusic').play();
-canvas.width = 800;
+canvas.width = 1000;
 canvas.height = 600;
 ctx.strokeStyle = '#56ff59';
 ctx.lineWidth = 3;
+let ping = false;
 
 let explosions = [];
 let bullets = [];
 let enemyBullets = [];
 let enemies = [];
 let powerups = [];
-let powerList = ['penta beam', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 'adagio redshift', 'hack://override', 'guard skill: distortion', 'cyber drive']
+let powerList = ['penta beam', 'nanobots', 'nanobots', 'nanobots', 'photon overdrive', 'hyper light drifter', 'risk of rain', 
+                'adagio redshift', 'hack://override', 'guard skill: distortion', 'cyber drive', 'scream', 'yatsufusa', 'ivories in the fire']
 let title = true;
 let shotsFired = 0;
 
@@ -63,7 +65,7 @@ window.onload = function(){
 
 function draw(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bg, 0, 0, 800, 600);
+    ctx.drawImage(bg, 0, 0, 1000, 600);
 
     for(let p of powerups){
         p.render(ctx);
@@ -75,6 +77,7 @@ function draw(){
             delete p;
         }
     }
+
     //The order of the for loops matter. 
     //If you want to render the explosions ON TOP of the bullets, put the explosion loop AFTER the bullet loop.
     for(let e of explosions){
@@ -104,7 +107,7 @@ function draw(){
                 break;
             }
         }
-        if(b && b.y < -b.image.height){
+        if(b && (b.y < 0 - b.image.height || b.x < 0 || b.x > canvas.width)){
             bullets.splice(bullets.indexOf(b), 1)
             b = null;
             delete b;
@@ -115,6 +118,7 @@ function draw(){
         if(--e.shoot <= 0){
             e.shoot = e.rof;
             let eb = new EnemyBullet(e.x, e.y);
+            if(player.ability !== 'risk of rain') eb.velX = (Math.floor(Math.random() * 4) - 2) * 2;
             enemyBullets.push(eb);
         }
         if(e.y > canvas.height){
@@ -129,7 +133,7 @@ function draw(){
             enemyBullets.splice(enemyBullets.indexOf(eb), 1)
             for(let i = -3; i < 4; i++){
                 let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
-                bullet.image.src = 'assets/enemy-bullet.png';
+                bullet.image.src = 'assets/circle-bullet.png';
                 bullet.velY = -5;
                 bullet.velX = i / 5;
                 bullets.push(bullet)
@@ -175,9 +179,9 @@ function draw(){
         for(let i = 0; i < 1; i += 0.1){
             gradient.addColorStop('' + i, getRandomColor());
         }
-        ctx.font = `${player.ability === 'guard skill: distortion' ? 55 : 65}px adventure`;
+        ctx.font = `${player.ability === 'guard skill: distortion' ? 75 : 80}px adventure`;
         ctx.fillStyle = gradient;
-        ctx.fillText(player.ability, 400 - (ctx.measureText(player.ability).width / 2), 280);
+        ctx.fillText(player.ability, canvas.width / 2 - (ctx.measureText(player.ability).width / 2), player.ability === 'scream' ? 300 : 280);
     }
     if(title){
         let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
@@ -186,8 +190,8 @@ function draw(){
         gradient.addColorStop("1.0", getRandomColor());
         ctx.font = '60px adventure';
         ctx.fillStyle = gradient; 
-        ctx.fillText('Just Your Average', 400 - (ctx.measureText('Just Your Average').width / 2), 270);
-        ctx.fillText('Space Invaders Clone', 400 - (ctx.measureText('Space Invaders Clone').width / 2), 310);
+        ctx.fillText('Just Your Average', canvas.width / 2  - (ctx.measureText('Just Your Average').width / 2), 270);
+        ctx.fillText('Space Invaders Clone', canvas.width / 2  - (ctx.measureText('Space Invaders Clone').width / 2), 310);
     }
     //Don't use template literals in the tutorial
 }
@@ -233,7 +237,7 @@ function shoot(){
     }else if(player.ability === 'cyber drive'){
         for(let i = -5; i < 6; i++){
             let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
-            bullet.image.src = 'assets/enemy-bullet.png';
+            bullet.image.src = 'assets/circle-bullet.png';
             bullet.velY = i !== 0 ? -Math.abs(i) : -5;
             bullet.velX = i / 3;
             bullets.push(bullet)
@@ -249,6 +253,33 @@ function shoot(){
         let bullet2 = new Bullet(player.x + player.width / 2 + 10, player.y - 10);
         bullets.push(bullet)
         bullets.push(bullet2)
+        shotsFired += 2;
+    }else if(player.ability === 'scream'){
+        for(let i = -10; i < 11; i++){
+            let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 5, player.y - 10);
+            bullet.image.src = 'assets/circle-bullet.png';
+            bullet.velY = -Math.abs(5 / i) - 1;
+            bullet.velX = i / 5;
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
+        bullets.push(bullet)
+    }else if(player.ability === 'yatsufusa'){
+        for(let i = -2; i < 2; i++){
+            let bullet = new Bullet(player.x + player.width / 2 + (i * 50), canvas.height);
+            bullet.image.src = 'assets/enemySingle.png';
+            bullet.velY = -5;
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
+    }else if(player.ability === 'ivories in the fire'){
+        let bullet = new Bullet(player.x + player.width / 2 - 26, player.y - 10);
+        let bullet2 = new Bullet(player.x + player.width / 2 + 20, player.y - 10);
+        bullets.push(bullet)
+        bullets.push(bullet2)
+        shotsFired += 2;
     }else{
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullets.push(bullet)
@@ -280,7 +311,7 @@ setInterval(function(){
         spawnEnemy();
     }
 }, 1500) //1s = 1000ms, so 1.5s = 1500ms
-setInterval(spawnPowerup, 5000) //5s = 5000ms
+setInterval(spawnPowerup, 4000) //4s = 4000ms
 //For the tutorial, put spawnEnemy in here as a lambda and eventually migrate it to a standalone function.
 
 function gameLoop(){
@@ -364,20 +395,43 @@ function gameLoop(){
                     }
                 }
                 break;
+            case 'scream':
+                player.rof = 10;
+                break;
+            case 'cyber drive':
+                player.rof = 4;
+                break;
+            case 'guard skill: distortion':
+                player.hp += player.hp < player.maxHp ? 0.1 : 0;
+                player.rof = 20
+                break;
+            case 'ivories in the fire':
+                for(let b of bullets){
+                    if(ping){
+                        b.velX--;    
+                    }else{
+                        b.velX++;
+                    }
+                    if(b.velX < -5 || b.velX > 5){
+                        ping = !ping;
+                    }
+                }
+                player.rof = 1;
+                break;
         }
     }
     else player.ability = '';
 
-    if(player.ability !== 'hyper light drifter' && player.ability !== 'photon overdrive'){
+    if(!['hyper light drifter', 'scream', 'photon overdrive', 'cyber drive', 'guard skill: distortion', 'ivories in the fire'].includes(player.ability)){
         player.rof = 3;
         player.damage = 1;
     }
-    if(player.ability !== 'risk of rain' && player.ability !== 'hack://override'){
+    if(!['risk of rain', 'hack://override'].includes(player.ability)){
         for(let e of enemies){
             e.rof = 100;
         }
         for(let b of enemyBullets){
-            b.velX = 0;
+            //b.velX = 0;
             b.velY = 5;
         }
     }
