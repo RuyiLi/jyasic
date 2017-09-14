@@ -11,7 +11,9 @@ shift to deccelerate
 
 ## powerups
 
-(note that some of these names are not original and are taken from other games or anime)
+(note that some of these names are not original and are taken from other games or anime or homestuck)
+
+**keep in mind that abilities cancel each other out.**
 
 light blue/green/teal - pentabeam: shoots five bullets instead of one.
 
@@ -25,7 +27,7 @@ light purple/violet - risk of rain: reverses all enemy bullets, making them shoo
 
 light red - hack://override: makes all enemies shoot to the right instead of down.
 
-light green - guard skill:distortion: spawns a temporary energy shield that reflects all incoming bullets and duplicates them.
+light green - guard skill:distortion: spawns a temporary energy shield that reflects all incoming bullets and duplicates them. rate of fire is drastically decreased, but slowly repairs the ship over time.
 
 red - adagio redshift: freezes all enemies, shoot two bullets, and lifesteal upon hitting enemies.
 
@@ -34,3 +36,5 @@ purple - cyber drive: shoots a large amount of bullets with varying speeds at mu
 grey - yatsufusa: spawns hordes of resurrected enemies that run into enemies and deal damage.
 
 white - scream: shoots a large amount of bullets with varying speeds at multiple angles.
+
+orange - ivories in the fire: shoots hordes of wavering bullets.
