@@ -25,6 +25,8 @@ class Powerup{
 		else if(this.type === 'god tier: lance of light') ctx.fillStyle = '#b3f9f4';
 		else if(this.type === 'god tier: disintegrate') ctx.fillStyle = '#666666';
 		else if(this.type === 'god tier: incursio') ctx.fillStyle = '#752e2e';
+		else if(this.type === 'l\'arc qui ne faut') ctx.fillStyle = '#333d1c';
+		else if(this.type === 'god tier: the fool\'s world') ctx.fillStyle = getRandomColor();
 		ctx.fillRect(this.x, this.y, 20, 20);
 	}
 }
