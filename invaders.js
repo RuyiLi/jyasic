@@ -88,7 +88,6 @@ canvas.addEventListener('mouseup', function() {
 
 window.onload = function(){
     if(!localStorage['highScore']) localStorage['highScore'] = 0;
-
     gameLoop();
 }
 
@@ -112,7 +111,7 @@ function draw(){
     }
     if(player.ability === 'god tier: the fool\'s world'){
         ctx.beginPath();
-        ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 250, 0, 2 * Math.PI, false);
+        ctx.arc(player.x + player.width / 2, player.y + player.height / 2, 500 - player.abilityCool, 0, 2 * Math.PI, false);
         ctx.fillStyle = getRandomColor();
         ctx.fill();
         ctx.lineWidth = 2;
@@ -363,6 +362,17 @@ function shoot(){
             }
         }
         return;
+    }else if(player.ability === 'god tier: a song of ice and fire'){
+        for(let j = -30; j < 30; j++){
+            let r = Math.random() > 0.5;
+            let bullet = new Bullet(r ? 0 : canvas.width, Math.floor(Math.random() * canvas.height));
+            bullet.image.src = Math.random() > 0.5 ? 'assets/circle-bullet.png' : 'assets/enemy-bullet.png';
+            bullet.velY = 0;
+            bullet.velX = r ? 10 : -10;
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
     }else if(player.ability === 'adagio redshift'){
         let bullet = new Bullet(player.x + player.width / 2 - 10, player.y - 10);
         let bullet2 = new Bullet(player.x + player.width / 2 + 10, player.y - 10);
@@ -484,6 +494,13 @@ function gameLoop(){
         }
     }
     if(player.score >= 30000){
+        if(!powerList.includes('god tier: a song of ice and fire')){
+            powerList.push('god tier: a song of ice and fire');
+            player.ability = 'god tier: a song of ice and fire';
+            player.abilityCool = 400;
+        }
+    }
+    if(player.score >= 35000){
         if(!powerList.includes('god tier: the fool\'s world')){
             powerList.push('god tier: the fool\'s world');
             player.ability = 'god tier: the fool\'s world';
@@ -554,12 +571,13 @@ function gameLoop(){
             case 'god tier: the fool\'s world':
                 for(let e of enemies){
                     e.speed = 0;
+                    e.rof = 1;
                     e.x += (player.x - e.x) / 20;
                     e.y += (player.y - e.y) / 20;
                     let deltaX = player.x - e.x;
                     let deltaY = player.y - e.y;
                     let distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-                    if(distance < 120) e.hp -= 2;
+                    if(distance < Math.floor(Math.random() * (500 - player.abilityCool)) + 100) e.hp -= 2;
                     if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
                         enemies.splice(enemies.indexOf(e), 1)
                         explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
@@ -568,9 +586,7 @@ function gameLoop(){
                         player.score += 5;
                         continue;
                     }
-                    e.shoot = 50;
                 }
-                player.shootDelay = 0;
                 break;
             case 'hack://corruption':
                 for(let b of enemyBullets){
@@ -625,7 +641,9 @@ function gameLoop(){
                         e = null;
                         delete e;
                         player.score += 5;
+                        continue;
                     }
+                    e.rof = 1;
                 }
                 break;
             case 'ivories in the fire':

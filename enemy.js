@@ -11,7 +11,7 @@ class Enemy{
 	    this.width = this.height = 32;
 	    this.image.src = this.sheet;
 	    this.rof = 120;
-	    this.shoot = Math.floor(Math.random() * 100);
+	    this.shoot = this.rof > 10 ? Math.floor(Math.random() * 100) : 0;
 	}
 
 	render(ctx){
