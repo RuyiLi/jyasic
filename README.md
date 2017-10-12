@@ -4,6 +4,8 @@ https://ruyili.github.io/jyasic/
 
 warning: flashing colors.
 
+this was a demo game created for my school's computer science club.
+
 ## controls
 arrow keys to move.
 
