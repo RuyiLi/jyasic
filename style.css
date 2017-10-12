@@ -8,10 +8,16 @@
     font-family: 'adventure';
 }
 
-p, a{
+p{
 	font-size: 1.5rem;
 	width: 2rem;
 	margin-left: 1.2rem;
+}
+
+a{
+	font-size: 1.3rem;
+	margin-left: 1.2rem;
+	text-decoration: none;
 }
 
 a:hover{

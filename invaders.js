@@ -7,6 +7,8 @@ ctx.lineWidth = 3;
 let ping = false;
 let mouseShooting = false;
 
+alert("warning: don't play this game if you have sensitive eyes. after 30 000 points, there will be a lot of flashing objects.")
+
 let explosions = [];
 let bullets = [];
 let enemyBullets = [];
@@ -93,7 +95,12 @@ window.onload = function(){
 
 function draw(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(bg, 0, 0, 1000, 600);
+    if(player.ability === 'god tier: doki doki'){
+        ctx.fillStyle = '#a00000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }else{
+        ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    }
 
     if(title){
         let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
@@ -154,6 +161,9 @@ function draw(){
         }
     }
     for(let p of powerups){
+        if(p.type === 'god tier: doki doki'){
+            ctx.drawImage(Math.random > 0.5 ? player.image : bg, this.x, this.y, 20, 20);
+        }
         p.render(ctx);
         if(player.x + player.width > p.x && player.x < p.x + 20 && player.y + player.height > p.y && player.y < p.y + 20){
             player.ability = p.type;
@@ -253,9 +263,15 @@ function draw(){
     //GUI takes priority.
     ctx.fillStyle = 'white';
     ctx.font = '30px adventure'
-    ctx.fillText(`Score: ${player.score}`, 10, 30);
-    ctx.fillText(`Shots Fired: ${shotsFired}`, 15, 50);
-    ctx.fillText(`High Score: ${localStorage['highScore']}`, 20, 70);
+    if(player.ability !== 'god tier: doki doki'){
+        ctx.fillText(`Score: ${player.score}`, 10, 30);
+        ctx.fillText(`Shots Fired: ${shotsFired}`, 15, 50);
+        ctx.fillText(`High Score: ${localStorage['highScore']}`, 20, 70);
+    }else{
+        ctx.fillText(`${wtf(50)}: ${wtf(player.score)}`, 10, 30);
+        ctx.fillText(`${wtf(110)}: ${wtf(shotsFired)}`, 15, 50);
+        ctx.fillText(`${wtf(100)}: ${wtf(localStorage['highScore'])}`, 20, 70);
+    }
     if(player.abilityCool > (player.ability.includes('god tier') ? 290 : 90)){
         let gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
         for(let i = 0; i < 1; i += 0.1){
@@ -263,9 +279,29 @@ function draw(){
         }
         ctx.font = `${player.ability.includes('god tier') ? 55 : (player.ability.includes('guard skill') ? 60 : 80)}px adventure`;
         ctx.fillStyle = gradient;
-        ctx.fillText(player.ability, canvas.width / 2 - (ctx.measureText(player.ability).width / 2), player.ability === 'scream' ? 300 : 280);
+        ctx.fillText(player.ability, canvas.width / 2 - (ctx.measureText(player.ability).width / 2), 280);
+    }
+    if((keys[32] || mouseShooting) && player.ability === 'god tier: doki doki'){
+        for(let qwertyuiop = 0; qwertyuiop < 20; qwertyuiop++){
+            let asdf = Math.random()
+            if(asdf < 0.3){
+                ctx.fillText(wtf(asdf * 100), Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32)
+            }else if(asdf < 0.6){
+                ctx.drawImage(player.image, Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32, Math.random() * 100, Math.random() * 100)
+            }else{
+                ctx.drawImage(bg, Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32, Math.random() * 100, Math.random() * 100)
+            }
+        }
     }
     //Don't use template literals in the tutorial
+}
+
+function wtf(m){
+    let res = String.fromCharCode(Math.floor(Math.random() * m));
+    for(let i = 0; i < ('' + m).length; i++){
+        res += String.fromCharCode(Math.floor(Math.random() * m));
+    }
+    return res
 }
 
 function getRandomColor() {
@@ -423,6 +459,17 @@ function shoot(){
             shotsFired++;
         }
         return;
+    }else if(player.ability === 'god tier: doki doki'){
+        for(let i = -50; i < 50; i++){
+            let bullet = new Bullet(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32);
+            let m = Math.random()
+            bullet.velX = (m > 0 ? (m + 5) : (m - 5)) * (Math.random() > 0.5 ? -8 : 8);
+            bullet.velY = (m > 0 ? (m + 5) : (m - 5)) * (Math.random() > 0.5 ? -8 : 8);
+            bullet.image.src = 'assets/red.png';
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
     }else{
         let bullet = new Bullet(player.x + player.width / 2 - 3, player.y - 10);
         bullets.push(bullet)
@@ -458,54 +505,47 @@ function gameLoop(){
         return;
     }
 
-    if(player.score >= 5000){
-        if(!powerList.includes('god tier: sonic rotation')){
-            powerList.push('god tier: sonic rotation');
-            player.ability = 'god tier: sonic rotation';
-            player.abilityCool = 400;
-        }
+    //b o  i   l    e     r
+
+    if(player.score >= 5000 && !powerList.includes('god tier: sonic rotation')){
+        powerList.push('god tier: sonic rotation');
+        player.ability = 'god tier: sonic rotation';
+        player.abilityCool = 400;
     }
-    if(player.score >= 10000){
-        if(!powerList.includes('god tier: lance of light')){
-            powerList.push('god tier: lance of light');
-            player.ability = 'god tier: lance of light';
-            player.abilityCool = 400;
-        }
+    if(player.score >= 10000 && !powerList.includes('god tier: lance of light')){
+        powerList.push('god tier: lance of light');
+        player.ability = 'god tier: lance of light';
+        player.abilityCool = 400;
     }
-    if(player.score >= 15000){
-        if(!powerList.includes('god tier: disintegrate')){
-            powerList.push('god tier: disintegrate');
-            player.ability = 'god tier: disintegrate';
-            player.abilityCool = 400;
-        }
+    if(player.score >= 15000 && !powerList.includes('god tier: disintegrate')){
+        powerList.push('god tier: disintegrate');
+        player.ability = 'god tier: disintegrate';
+        player.abilityCool = 400;
     }
-    if(player.score >= 20000){
-        if(!powerList.includes('god tier: incursio')){
-            powerList.push('god tier: incursio');
-            player.ability = 'god tier: incursio';
-            player.abilityCool = 400;
-        }
+    if(player.score >= 20000 && !powerList.includes('god tier: incursio')){
+        powerList.push('god tier: incursio');
+        player.ability = 'god tier: incursio';
+        player.abilityCool = 400;
     }
-    if(player.score >= 25000){
-        if(!powerList.includes('god tier: adramelech')){
-            powerList.push('god tier: adramelech');
-            player.ability = 'god tier: adramelech';
-            player.abilityCool = 400;
-        }
+    if(player.score >= 25000 && !powerList.includes('god tier: adramelech')){
+        powerList.push('god tier: adramelech');
+        player.ability = 'god tier: adramelech';
+        player.abilityCool = 400;
     }
-    if(player.score >= 30000){
-        if(!powerList.includes('god tier: a song of ice and fire')){
-            powerList.push('god tier: a song of ice and fire');
-            player.ability = 'god tier: a song of ice and fire';
-            player.abilityCool = 400;
-        }
+    if(player.score >= 30000 && !powerList.includes('god tier: a song of ice and fire')){
+        powerList.push('god tier: a song of ice and fire');
+        player.ability = 'god tier: a song of ice and fire';
+        player.abilityCool = 400;
     }
-    if(player.score >= 35000){
-        if(!powerList.includes('god tier: the fool\'s world')){
-            powerList.push('god tier: the fool\'s world');
-            player.ability = 'god tier: the fool\'s world';
-            player.abilityCool = 400;
-        }
+    if(player.score >= 35000 && !powerList.includes('god tier: the fool\'s world')){
+        powerList.push('god tier: the fool\'s world');
+        player.ability = 'god tier: the fool\'s world';
+        player.abilityCool = 400;
+    }
+    if(player.score >= 40000 && !powerList.includes('god tier: doki doki')){
+        powerList.push('god tier: doki doki');
+        player.ability = 'god tier: doki doki';
+        player.abilityCool = 400;
     }
 
     if(keys[16] && !['hyper light drifter', 'god tier: disintegrate'].includes(player.ability)) player.speed = 3;
@@ -593,7 +633,7 @@ function gameLoop(){
                     b.velX = 5;
                     b.velY = 0;
                     for(let e of enemies){
-                        if(b.x > e.x && b.x < e.x + e.width && b.y < e.y + e.height && b.y > e.y){ //Check if the bullet is inside the width range of an enemy
+                        if(b.x > e.x && b.x < e.x + e.width && b.y < e.y + e.height && b.y > e.y){ //Check if the bullet is inside the range of an enemy
                             enemyBullets.splice(enemyBullets.indexOf(b), 1)
                             b = null;
                             delete b;
@@ -682,6 +722,7 @@ function gameLoop(){
             e.speed = e.speed > 0 ? 1 : -1;
         }
     }
+        
 
     if((keys[32] || mouseShooting) && player.shootDelay <= 0){ //If the player presses space and the gun's cooldown has been reached, shoot.
         shoot();
