@@ -47,6 +47,8 @@ vomit green (#397040) - **guard skill: harmonics**: creates two clones and incre
 
 brownish yellow (#5a6014) - **guard skill: overdrive**: decreases damage, but shoots 20 bullets.
 
+darker brownish yellow (#333d1c) - **l'arc qui ne faut**: shoots bullets that never miss and are guaranteed to hit an enemy. bullets that targeted an enemy that has already been destroyed will be left behind as traps that deal damage to any enemy that walks over them.
+
 ## God Tier Powerups
 
 _these powerups are unlocked upon reaching scores that are multiples of 5000._
@@ -65,3 +67,9 @@ format:
 [15000] light grey (#666666) - **god tier: disintegrate**: quickly kills all enemies over time, regardless of position.
 
 [20000] dirty red (#752e2e) - **god tier: incursio**: creates a large barrier spanning the entire map, rendering the player invincible and also reflecting all enemy bullets with 20 duplicates.
+
+[25000] very light yellow (#e9ff8c) - **god tier: adramelech**: summons five large bolts of "thunder"(20 bullets) around the player
+
+[30000] orangish (#ff6219) - **god tier: a song of ice and fire**: covers the entire screen with bullets flying in from the left and right sides of the screen
+
+[30000] rainbow (#??????) - **god tier: the fool's world**: creates a flashing rainbow-colored black hole that grows, pulling in enemies and shredding them. _warning: this thing flashes really really really fast so you might want to look away when you use this powerup and just let it do its thing_
