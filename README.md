@@ -2,7 +2,9 @@
 just your average space invaders clone.
 https://ruyili.github.io/jyasic/
 
-warning: flashing colors.
+warning: flashing colors. if you are sensitive to epilepsy or flashing stuff, don't play this game.
+
+seriously, if you're sensitive to flashing colors, you're not going to like it when you [get past 30000 points](#god-tier-powerups).
 
 this was a demo game created for my school's computer science club.
 
@@ -74,4 +76,6 @@ format:
 
 [30000] orangish (#ff6219) - **god tier: a song of ice and fire**: covers the entire screen with bullets flying in from the left and right sides of the screen
 
-[30000] rainbow (#??????) - **god tier: the fool's world**: creates a flashing rainbow-colored black hole that grows, pulling in enemies and shredding them. _warning: this thing flashes really really really fast so you might want to look away when you use this powerup and just let it do its thing_
+[35000] rainbow (#??????) - **god tier: the fool's world**: creates a flashing rainbow-colored black hole that grows, pulling in enemies and shredding them. _warning: this thing changes color really fast, it might hurt your eyes a bit_
+
+[40000] distorted player sprite or background sprite (#??????) - **god tier: doki doki**: creates a flashing rainbow-colored black hole that grows, pulling in enemies and shredding them. _warning: remember when i said **the fool's world** would hurt your head? compared to this, it's a cakewalk. for your own sake, hold space, look away, and don't look back until around 7 seconds have passed_
