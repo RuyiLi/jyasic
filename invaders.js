@@ -1,6 +1,7 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d')
-document.getElementById('bgMusic').play();
+const audio = document.getElementById('bgMusic');
+audio.play();
 canvas.width = 1000;
 canvas.height = 600;
 ctx.lineWidth = 3;
@@ -55,28 +56,35 @@ let keys = {}
 player.image.src = player.src;
 
 function start(){
-    for(let i = 0; i < 25; i++){
-        spawnEnemy();
-    }
-    //localStorage.highScore works too, but be consistent.
-    //setInterval takes two arguments: a function and a delay.
-    //It will keep running the function every `delay` seconds.
-    setInterval(function(){
-        for(let i = 0; i < 8; i++){
+    if(title){
+        for(let i = 0; i < 25; i++){
             spawnEnemy();
         }
-    }, 1500) //1s = 1000ms, so 1.5s = 1500ms
-    setInterval(spawnPowerup, 4000) //4s = 4000ms
-    setInterval(function(){
-        spawnEnemy(true);
-    }, 6000)
-    //For the tutorial, put spawnEnemy in here as a lambda and eventually migrate it to a standalone function.
-    title = false;
+        //localStorage.highScore works too, but be consistent.
+        //setInterval takes two arguments: a function and a delay.
+        //It will keep running the function every `delay` seconds.
+        setInterval(function(){
+            for(let i = 0; i < 8; i++){
+                spawnEnemy();
+            }
+        }, 1500) //1s = 1000ms, so 1.5s = 1500ms
+        setInterval(spawnPowerup, 4000) //4s = 4000ms
+        setInterval(function(){
+            spawnEnemy(true);
+        }, 6000)
+        //For the tutorial, put spawnEnemy in here as a lambda and eventually migrate it to a standalone function.
+        title = false;
+    }
 }
+
+document.getElementsByTagName('button')[0].addEventListener('click', function(){
+    audio.paused = !!localStorage['mute'];
+    localStorage['mute'] = !localStorage['mute']
+}, false);
 
 canvas.addEventListener('click', start, false);
 
-canvas.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function(e) {
     if(e.keyCode === 32) start();
 }, false);
 
@@ -95,9 +103,12 @@ window.onload = function(){
 
 function draw(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if(player.ability === 'god tier: doki doki'){
-        ctx.fillStyle = '#a00000';
+    if(player.ability === 'god tier: doki doki' && player.abilityCool <= 300){
+        ctx.fillStyle = '#A00000';
         ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = Math.random() > 0.5 ? 'white' : 'black';
+        ctx.font = `${Math.floor(Math.random() * 30) + 20}px adventure`;
+        ctx.fillText('Just Monika.', Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32);
     }else{
         ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
     }
@@ -401,7 +412,7 @@ function shoot(){
     }else if(player.ability === 'god tier: a song of ice and fire'){
         for(let j = -30; j < 30; j++){
             let r = Math.random() > 0.5;
-            let bullet = new Bullet(r ? 0 : canvas.width, Math.floor(Math.random() * canvas.height));
+            let bullet = new Bullet(r ? 0 : canvas.width, Math.floor(Math.random() * player.y) - 100);
             bullet.image.src = Math.random() > 0.5 ? 'assets/circle-bullet.png' : 'assets/enemy-bullet.png';
             bullet.velY = 0;
             bullet.velX = r ? 10 : -10;
