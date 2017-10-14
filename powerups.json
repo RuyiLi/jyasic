@@ -1,0 +1,25 @@
+{
+	'penta beam': ctx.fillStyle = '#28ff97';
+	'nanobots': '#1fdd02';
+	'hyper light drifter': ctx.fillStyle = '#0e94f4';
+	'photon override': '#e1e510';
+	'risk of rain': ctx.fillStyle = '#C11BD1';
+	'adagio redshift': ctx.fillStyle = '#e80909';
+	'hack://corruption': '#ff4949';
+	'guard skill: distortion': '#56ff59';
+	'cyber drive': '#7314cc';
+	'scream': '#FFFFFF';
+	'yatsufusa': '#282828';
+	'ivories in the fire': '#ffa20c';
+	'guard skill: harmonics': '#397040';
+	'guard skill: overdrive': '#5a6014';
+	'god tier: sonic rotation': '#173f42';
+	'god tier: lance of light': '#b3f9f4';
+	'god tier: disintegrate': '#666666';
+	'god tier: incursio': '#752e2e';
+	'god tier: adramelech': '#e9ff8c';
+	'l\'arc qui ne faut': '#333d1c';
+	'god tier: the fool\'s world': 'random';
+	'god tier: a song of ice and fire': '#ff6219';
+	'god tier: doki doki': '#ff6219';
+}
