@@ -31,6 +31,7 @@ class Powerup{
 		else if(this.type === 'god tier: the fool\'s world') ctx.fillStyle = getRandomColor();
 		else if(this.type === 'god tier: a song of ice and fire') ctx.fillStyle = '#ff6219';
 		else if(this.type === 'god tier: doki doki') ctx.fillStyle = '#ff6219';
+		else if(this.type === 'god tier: deal with the devil') ctx.fillStyle = '#FF0000';
 		ctx.fillRect(this.x, this.y, 20, 20);
 	}
 }

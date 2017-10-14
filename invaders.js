@@ -1,3 +1,4 @@
+//honestly this crap is so poorly coded so expect lag
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d')
 const audio = document.getElementById('bgMusic');
@@ -58,7 +59,6 @@ function start(){
         for(let i = 0; i < 25; i++){
             spawnEnemy();
         }
-        //localStorage.highScore works too, but be consistent.
         //setInterval takes two arguments: a function and a delay.
         //It will keep running the function every `delay` seconds.
         setInterval(function(){
@@ -103,6 +103,9 @@ function draw(){
         ctx.fillStyle = Math.random() > 0.5 ? 'white' : 'black';
         ctx.font = `${Math.floor(Math.random() * 30) + 20}px adventure`;
         ctx.fillText('Just Monika.', Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32);
+    }else if(player.ability === 'god tier: deal with the devil'){
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
     }else{
         ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
     }
@@ -150,12 +153,12 @@ function draw(){
                 delete b;
                 e.hp -= player.damage;
                 if(player.ability === 'adagio redshift' && player.hp < player.maxHp - 1) player.hp += 1;
-                if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
+                if(e.hp <= 0){
+                    player.score += e.maxHp;
                     enemies.splice(enemies.indexOf(e), 1)
                     explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
                     e = null;
                     delete e;
-                    player.score += 5;
                 }
                 break;
             }
@@ -182,17 +185,19 @@ function draw(){
     for(let e of enemies){
         e.render(ctx);
         if(--e.shoot <= 0){
-            e.shoot = e.rof;
             let eb = new EnemyBullet(e.x, e.y);
             if(player.ability !== 'risk of rain'){
                 eb.velX = (Math.floor(Math.random() * 2) - 1) * 2;
-                e.rof = Math.floor(Math.random() * 100) + 100;
+                e.shoot = Math.floor(Math.random() * 100) + 100;
+            }else{
+                e.shoot = e.rof;
             }
             enemyBullets.push(eb);
         }
         if(e.y > canvas.height){
             enemies.splice(enemies.indexOf(e), 1)
             e = null;
+            player.hp -= 20;
             delete e;
         }
     }
@@ -270,7 +275,7 @@ function draw(){
     ctx.fillStyle = 'white';
     ctx.font = '30px adventure'
     if(player.ability !== 'god tier: doki doki'){
-        ctx.fillText(`Score: ${player.score}`, 10, 30);
+        ctx.fillText(`Score: ${Math.floor(player.score)}`, 10, 30);
         ctx.fillText(`Shots Fired: ${shotsFired}`, 15, 50);
         ctx.fillText(`High Score: ${localStorage['highScore']}`, 20, 70);
     }else{
@@ -297,6 +302,25 @@ function draw(){
             }else{
                 ctx.drawImage(bg, Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * (canvas.height - 64)) + 32, Math.random() * 100, Math.random() * 100)
             }
+        }
+    }
+    if(player.ability === 'god tier: deal with the devil'){
+        for(let e of enemies){
+            e.maxHp -= 0.2;
+            e.shoot = 6;
+            if(e.maxHp <= 0){
+                enemies.splice(enemies.indexOf(e), 1)
+                explode(e.x - 48, e.y - 48);
+                player.score += e.maxHp;
+                spawnEnemy();
+                spawnEnemy();
+                spawnEnemy();
+                e = null;
+                delete e;
+                continue;
+            }
+            ctx.fillStyle = 'red';
+            ctx.fillRect(e.x - 10, e.y - 10, e.width + 10, e.height + 10);
         }
     }
     //Don't use template literals in the tutorial
@@ -329,10 +353,11 @@ function spawnEnemy(boss = false){
     let enemy = new Enemy(Math.floor(Math.random() * (canvas.width - 64)) + 32, (Math.floor(Math.random() * 4) + 1) * 50);
     if(boss){
         enemy.rof = 50;
-        enemy.maxHp = enemy.hp = 30;
+        enemy.maxHp = enemy.hp = Math.floor(Math.random() * 30);
         enemies.push(enemy);
     }else{
         enemy.rof = Math.floor(Math.random() * 100) + 100;
+        enemy.maxHp = enemy.hp = Math.floor(Math.random() * Math.floor(player.score / 5000)) + 3;
         enemies.push(enemy);
     }
 }
@@ -344,7 +369,7 @@ function spawnPowerup(){
         powerups = powerups.slice(1);
     }
     let powerName = powerList[Math.floor(Math.random() * powerList.length)];
-    if(powerName.includes('god tier') && Math.random() > 0.5) powerName = powerList[Math.floor(Math.random() * powerList.length)];
+    if(powerName.includes('god tier') && Math.random() > 0.75) powerName = powerList[Math.floor(Math.random() * powerList.length)];
     let powerup = new Powerup(Math.floor(Math.random() * (canvas.width - 64)) + 32, Math.floor(Math.random() * 200) + 300, powerName);
     powerups.push(powerup);
 }
@@ -353,6 +378,16 @@ function shoot(){
     if(player.ability === 'penta beam'){
         for(let i = -2; i < 3; i++){
             let bullet = new Bullet(player.x + player.width / 2 + (i * 5) - 3, player.y - 10);
+            bullets.push(bullet)
+            shotsFired++;
+        }
+        return;
+    }if(player.ability === 'god tier: deal with the devil'){
+        for(let i = -2; i < 3; i++){
+            let bullet = new Bullet(player.x + player.width / 2 + (i * 20) - 5, player.y - 10);
+            bullet.image.src = 'assets/red.png';
+            bullet.velY = -18;
+            spawnEnemy();
             bullets.push(bullet)
             shotsFired++;
         }
@@ -553,9 +588,18 @@ function gameLoop(){
         player.ability = 'god tier: doki doki';
         player.abilityCool = 400;
     }
+    if(player.score >= 45000 && !powerList.includes('god tier: deal with the devil')){
+        powerList.push('god tier: deal with the devil');
+        player.ability = 'god tier: deal with the devil';
+        player.abilityCool = 400;
+    }
 
-    if(keys[16] && !['hyper light drifter', 'god tier: disintegrate'].includes(player.ability)) player.speed = 3;
-    else if(!keys[16] && !['hyper light drifter', 'god tier: disintegrate'].includes(player.ability)) player.speed = 5;
+    if(player.hp > player.maxHp && player.ability !== 'god tier: deal with the devil'){
+        player.hp = player.maxHp;
+    }
+
+    if(keys[16] && !['hyper light drifter', 'god tier: deal with the devil'].includes(player.ability)) player.speed = 3;
+    else if(!keys[16] && !['hyper light drifter', 'god tier: deal with the devil'].includes(player.ability)) player.speed = 5;
 
     //Because of this, the left key (which has a key code of 37) takes priority over the else if (right arrow key with code 39)
     if((keys[37] || keys[65]) && player.x > 0) player.vx = -player.speed; //Negative x velocity means the player will move left 
@@ -580,8 +624,12 @@ function gameLoop(){
                 break;
             case 'hyper light drifter':
                 player.rof = 2;
-                player.damage = 5;
+                player.damage = 100;
                 player.speed = 10;
+                break;
+            case 'god tier: doki doki':
+                player.rof = 2;
+                player.damage = 100;
                 break;
             case 'god tier: lance of light':
                 player.rof = 0;
@@ -598,10 +646,10 @@ function gameLoop(){
                             e.hp -= player.damage;
                             if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
                                 enemies.splice(enemies.indexOf(e), 1)
+                                player.score += e.maxHp;
                                 explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
                                 e = null;
                                 delete e;
-                                player.score += 5;
                             }
                             break;
                         }
@@ -627,9 +675,9 @@ function gameLoop(){
                     if(e.hp <= 0){ //Leave this as e.hp-- for the first part, point out that they are still alive with no hp, and change it to --e.hp
                         enemies.splice(enemies.indexOf(e), 1)
                         explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
+                        player.score += e.maxHp;
                         e = null;
                         delete e;
-                        player.score += 5;
                         continue;
                     }
                 }
@@ -647,15 +695,21 @@ function gameLoop(){
                             if(e.hp <= 0){
                                 enemies.splice(enemies.indexOf(e), 1)
                                 explode(e.x - 48, e.y - 48); //x - (explosion width / 2) + (enemy width / 2)
+                                player.score += e.maxHp;
                                 e = null;
                                 delete e;
-                                player.score += 5;
                             }
                             break;
                         }
                         e.rof = 40;
                     }
                 }
+                break;
+            case 'god tier: deal with the devil':
+                player.hp = 666666;
+                player.damage = 666;
+                player.speed = 12;
+                player.shootDelay = 0;
                 break;
             case 'scream':
                 player.rof = 6;
@@ -672,21 +726,21 @@ function gameLoop(){
                 player.rof = 20
                 break;
             case 'guard skill: overdrive':
-                player.damage = 0.3;
+                player.damage = 0.2;
+                player.rof = 2;
                 break;
             case 'god tier: adramelech':
                 player.shootDelay = 0;
                 break;
             case 'god tier: disintegrate':
-                player.speed = 4;
                 for(let e of enemies){
                     e.hp -= 0.1;
                     if(e.hp <= 0){
                         enemies.splice(enemies.indexOf(e), 1)
                         explode(e.x - 48, e.y - 48);
+                        player.score += e.maxHp;
                         e = null;
                         delete e;
-                        player.score += 5;
                         continue;
                     }
                     e.rof = 1;
@@ -710,7 +764,7 @@ function gameLoop(){
     else player.ability = '';
 
     if(!['hyper light drifter', 'god tier: lance of light', 'scream', 'photon override', 'cyber drive', 'guard skill: distortion', 
-        'guard skill: overdrive', 'ivories in the fire', 'god tier: sonic rotation'].includes(player.ability)){
+        'guard skill: overdrive', 'ivories in the fire', 'god tier: sonic rotation', 'god tier: doki doki', 'god tier: deal with the devil'].includes(player.ability)){
         player.rof = 3;
         player.damage = 1;
     }

@@ -25,8 +25,8 @@ class Enemy{
 		
 		//Again, add this crap later on.
 		ctx.fillStyle = '#FF0000'; //Red
-		ctx.fillRect(this.x - (this.maxHp === 30 ? 15 : 0), this.y - 5, Math.floor(this.width * (this.maxHp === 30 ? 2 : 1) / this.maxHp) * this.maxHp, 5);
+		ctx.fillRect(this.x + this.width / 2 - (this.maxHp / 12 * this.width), this.y - 5, (this.maxHp / 6 * this.width), 5);
 		ctx.fillStyle = '#00FF00'; //Green
-		ctx.fillRect(this.x - (this.maxHp === 30 ? 15 : 0), this.y - 5, Math.floor(this.width * (this.maxHp === 30 ? 2 : 1) / this.maxHp * this.hp), 5);
+		ctx.fillRect(this.x + this.width / 2 - (this.maxHp / 12 * this.width), this.y - 5, (this.hp / 6 * this.width), 5);
 	}
 }
