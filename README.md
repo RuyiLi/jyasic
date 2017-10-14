@@ -17,6 +17,8 @@ shift to deccelerate.
 
 a to spawn enemies.
 
+enemies that reach the bottom of the game will be destroyed and punish the player with a loss of 20 hitpoints.
+
 ## powerups
 
 (note that some of these names are not original and are taken from other games or anime or homestuck)
@@ -78,4 +80,10 @@ format:
 
 [35000] rainbow (#??????) - **god tier: the fool's world**: creates a flashing rainbow-colored black hole that grows, pulling in enemies and shredding them. _warning: this thing changes color really fast, it might hurt your eyes a bit_
 
-[40000] distorted player sprite or background sprite (#??????) - **god tier: doki doki**: creates a flashing rainbow-colored black hole that grows, pulling in enemies and shredding them. _warning: remember when i said **the fool's world** would hurt your head? compared to this, it's a cakewalk. for your own sake, hold space, look away, and don't look back until around 7 seconds have passed_
+[40000] distorted player sprite or background sprite (#??????) - **god tier: doki doki**: bullets deal 100 damage, spawn all over the map randomly, move in random directions, and glitches everything out. _warning: remember when i said **the fool's world** would hurt your head? compared to this, it's a cakewalk. for your own sake, hold space, look away, and don't look back until around 7 seconds have passed_
+
+just monika.
+
+[45000] pure red (#FF000) - **god tier: deal with the devil**: bullets deal 666 damage, increases health to 666666 directions, no rate of fire, increased speed, shoots five bullets, enemies die automatically over time, and shooting one bullet spawns three more enemies. the only downside to this ability is that you'll have to deal with a bunch of enemies once the powerup ends. that's the consequence for dealing with the devil
+
+
