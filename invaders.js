@@ -1,14 +1,11 @@
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d')
 const audio = document.getElementById('bgMusic');
-audio.play();
 canvas.width = 1000;
 canvas.height = 600;
 ctx.lineWidth = 3;
 let ping = false;
 let mouseShooting = false;
-
-alert("warning: don't play this game if you have sensitive eyes. after 30 000 points, there will be a lot of flashing objects.")
 
 let explosions = [];
 let bullets = [];
@@ -57,6 +54,7 @@ player.image.src = player.src;
 
 function start(){
     if(title){
+        audio.play();
         for(let i = 0; i < 25; i++){
             spawnEnemy();
         }
@@ -78,15 +76,11 @@ function start(){
 }
 
 document.getElementsByTagName('button')[0].addEventListener('click', function(){
-    audio.paused = !!localStorage['mute'];
-    localStorage['mute'] = !localStorage['mute']
+    if(audio.paused) audio.play()
+    else audio.pause()
 }, false);
 
 canvas.addEventListener('click', start, false);
-
-document.addEventListener('keydown', function(e) {
-    if(e.keyCode === 32) start();
-}, false);
 
 canvas.addEventListener('mousedown', function() {
     mouseShooting = true;
@@ -124,7 +118,8 @@ function draw(){
         ctx.fillText('Space Invaders Clone', canvas.width / 2  - (ctx.measureText('Space Invaders Clone').width / 2), 310);
         ctx.fillStyle = '#ededed';
         ctx.font = '40px adventure';
-        ctx.fillText('Click or press space to start', canvas.width / 2  - (ctx.measureText('Click or press space to start').width / 2), 350);
+        ctx.fillText('Click to start', canvas.width / 2  - (ctx.measureText('Click to start').width / 2), 350);
+        ctx.fillText('Warning: Flashing Colors', canvas.width / 2  - (ctx.measureText('Warning: Flashing Colors').width / 2), 380);
         return;
     }
     if(player.ability === 'god tier: the fool\'s world'){
